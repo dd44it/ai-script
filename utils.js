@@ -1,12 +1,5 @@
 const fs = require("fs");
 
-function saveResult(data) {
-  fs.writeFileSync(
-    "./result.json",
-    JSON.stringify(data, null, 2)
-  );
-}
-
 function cleanJsonResponse(text) {
   return text
     .replace(/```json/g, "")
@@ -14,4 +7,4 @@ function cleanJsonResponse(text) {
     .trim();
 }
 
-module.exports = { saveResult, cleanJsonResponse };
+module.exports = { cleanJsonResponse };
