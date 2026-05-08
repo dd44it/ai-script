@@ -2,6 +2,8 @@ const { loadKeywords } = require("./parser");
 const { filterKeywords, calculateScore } = require("./keywords");
 const { generateMeta } = require("./llm");
 const { cleanJsonResponse } = require("./utils");
+const { validateMeta } = require("./validation");
+const { ALLOWED_CATEGORIES } = require("./constants");
 const {
   saveSuccess,
   saveError
@@ -18,7 +20,13 @@ function ensureDirs() {
 }
 
 async function run() {
-  const prompt = process.argv.slice(2).join(" ");
+  const prompt = process.argv.slice(2).join(" ").trim();
+
+  if (!prompt) {
+    console.log("ERROR: prompt is required");
+    process.exitCode = 1;
+    return;
+  }
 
   ensureDirs();
   const rawKeywords = loadKeywords("./keywords_clean_v2.ods");
@@ -33,15 +41,19 @@ async function run() {
     .sort((a, b) => b.score - a.score);
 
   const top100 = ranked.slice(0, 100);
-  const aiResult = await generateMeta(
-    prompt,
-    top100
-  );
-
   try {
+    const aiResult = await generateMeta(
+      prompt,
+      top100
+    );
+
     const cleaned = cleanJsonResponse(aiResult);
 
     const parsed = JSON.parse(cleaned);
+    validateMeta(parsed, {
+      candidateKeywords: top100.map(k => k.Keyword),
+      allowedCategories: ALLOWED_CATEGORIES
+    });
 
     saveSuccess({
       prompt,
