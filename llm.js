@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { ALLOWED_CATEGORIES } = require("./constants");
 
 const genAI = new GoogleGenerativeAI(
   process.env.GEMINI_API_KEY
@@ -23,16 +24,7 @@ async function generateMeta(prompt, keywords) {
     ${keywordList}
     
     Available categories:
-    - Ads / Marketing
-    - Product / Demo
-    - Brand / Corporate
-    - Presentation / Pitch
-    - Social Content
-    - Education / Explainers
-    - Film / Series
-    - Experimental / Showcase
-    - E-commerce / Retail
-    - Event / Promo
+    ${ALLOWED_CATEGORIES.map(c => `- ${c}`).join("\n    ")}
     
     Tasks:
     1. Select TOP 20 most relevant keywords
@@ -63,4 +55,6 @@ async function generateMeta(prompt, keywords) {
   return result.response.text();
 }
 
-module.exports = { generateMeta };
+module.exports = {
+  generateMeta
+};
