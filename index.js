@@ -40,18 +40,18 @@ async function run() {
     }))
     .sort((a, b) => b.score - a.score);
 
-  const top100 = ranked.slice(0, 100);
+  const top50 = ranked.slice(0, 50);
   try {
     const aiResult = await generateMeta(
       prompt,
-      top100
+      top50
     );
 
     const cleaned = cleanJsonResponse(aiResult);
 
     const parsed = JSON.parse(cleaned);
     validateMeta(parsed, {
-      candidateKeywords: top100.map(k => k.Keyword),
+      candidateKeywords: top50.map(k => k.Keyword),
       allowedCategories: ALLOWED_CATEGORIES
     });
 
